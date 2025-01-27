@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Temporary Email Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded shadow-lg text-center">
+    <h1 class="text-2xl font-bold mb-4">Temporary Email Generator</h1>
+    <button id="generate-email-btn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Generate Temporary Email</button>
+    <div id="email-display" class="mt-4 hidden">
+      <p class="font-bold">Your Temporary Email:</p>
+      <p id="generated-email" class="text-blue-600"></p>
+    </div>
+    <div id="inbox" class="mt-4 hidden">
+      <p class="font-bold">Inbox:</p>
+      <ul id="email-inbox" class="list-disc text-left pl-5"></ul>
+    </div>
+  </div>
+
+  <script>
+    const generateEmailBtn = document.getElementById('generate-email-btn');
+    const emailDisplay = document.getElementById('email-display');
+    const generatedEmail = document.getElementById('generated-email');
+    const inbox = document.getElementById('inbox');
+    const emailInbox = document.getElementById('email-inbox');
+
+    generateEmailBtn.addEventListener('click', async () => {
+      try {
+        const response = await fetch('/generate-email');
+        const data = await response.json();
+
+        if (data.email) {
+          emailDisplay.classList.remove('hidden');
+          generatedEmail.textContent = data.email;
+
+          // Automatically check inbox
+          checkInbox(data.email);
+        } else {
+          alert('Failed to generate email.');
+        }
+      } catch (error) {
+        console.error(error);
+        alert('Error generating email.');
+      }
+    });
+
+    async function checkInbox(email) {
+      try {
+        const response = await fetch(`/check-inbox/${email}`);
+        const data = await response.json();
+
+        if (data.inbox) {
+          inbox.classList.remove('hidden');
+          emailInbox.innerHTML = '';
+
+          data.inbox.forEach((mail) => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${mail.subject} - ${mail.sender}`;
+            emailInbox.appendChild(listItem);
+          });
+        }
+      } catch (error) {
+        console.error(error);
+        alert('Error checking inbox.');
+      }
+    }
+  </script>
+</body>
+</html>
