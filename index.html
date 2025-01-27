@@ -3,70 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Temporary Email Generator</title>
+  <title>Temp Mail Generator</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
-  <div class="bg-white p-8 rounded shadow-lg text-center">
-    <h1 class="text-2xl font-bold mb-4">Temporary Email Generator</h1>
-    <button id="generate-email-btn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Generate Temporary Email</button>
-    <div id="email-display" class="mt-4 hidden">
-      <p class="font-bold">Your Temporary Email:</p>
-      <p id="generated-email" class="text-blue-600"></p>
+<body class="bg-gray-100 flex justify-center items-center min-h-screen">
+  <div class="bg-white p-6 rounded shadow-md w-96">
+    <h1 class="text-xl font-bold mb-4 text-center">Temp Mail Generator</h1>
+    <button id="generateEmail" class="bg-blue-500 text-white px-4 py-2 rounded w-full">Generate Email</button>
+    <div id="emailContainer" class="mt-4 hidden">
+      <p class="text-gray-700">Generated Email:</p>
+      <div class="bg-gray-100 p-2 rounded mt-2 flex justify-between items-center">
+        <span id="generatedEmail" class="text-blue-500"></span>
+        <button id="copyButton" class="bg-gray-300 text-sm px-2 py-1 rounded">Copy</button>
+      </div>
     </div>
-    <div id="inbox" class="mt-4 hidden">
-      <p class="font-bold">Inbox:</p>
-      <ul id="email-inbox" class="list-disc text-left pl-5"></ul>
+    <div id="loading" class="flex justify-center mt-4 hidden">
+      <div class="loader"></div>
     </div>
   </div>
-
-  <script>
-    const generateEmailBtn = document.getElementById('generate-email-btn');
-    const emailDisplay = document.getElementById('email-display');
-    const generatedEmail = document.getElementById('generated-email');
-    const inbox = document.getElementById('inbox');
-    const emailInbox = document.getElementById('email-inbox');
-
-    generateEmailBtn.addEventListener('click', async () => {
-      try {
-        const response = await fetch('/generate-email');
-        const data = await response.json();
-
-        if (data.email) {
-          emailDisplay.classList.remove('hidden');
-          generatedEmail.textContent = data.email;
-
-          // Automatically check inbox
-          checkInbox(data.email);
-        } else {
-          alert('Failed to generate email.');
-        }
-      } catch (error) {
-        console.error(error);
-        alert('Error generating email.');
-      }
-    });
-
-    async function checkInbox(email) {
-      try {
-        const response = await fetch(`/check-inbox/${email}`);
-        const data = await response.json();
-
-        if (data.inbox) {
-          inbox.classList.remove('hidden');
-          emailInbox.innerHTML = '';
-
-          data.inbox.forEach((mail) => {
-            const listItem = document.createElement('li');
-            listItem.textContent = `${mail.subject} - ${mail.sender}`;
-            emailInbox.appendChild(listItem);
-          });
-        }
-      } catch (error) {
-        console.error(error);
-        alert('Error checking inbox.');
-      }
-    }
-  </script>
+  <script src="frontend.js"></script>
 </body>
 </html>
